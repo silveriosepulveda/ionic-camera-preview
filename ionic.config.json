@@ -1,0 +1,7 @@
+{
+  "name": "ionic-camera-preview",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
