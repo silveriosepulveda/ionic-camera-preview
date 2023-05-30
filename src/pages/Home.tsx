@@ -29,9 +29,8 @@ const Home: React.FC = () => {
     }
 
     CameraPreview.startCamera(opcoes).then(sucesso => {
-      iniciar();
-    }).catch(erro => alert(erro))
-    setStatus('Iniciando');
+      setStatus('Camera Aberta')
+    }).catch(erro => alert(erro))    
   }
 
 
