@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 
 import { CameraPreview, CameraPreviewOptions } from '@ionic-native/camera-preview';
+import { AndroidPermissions } from '@ionic-native/android-permissions'
 
 const Home: React.FC = () => {
   const [status, setStatus] = useState('Aguardando');
@@ -25,12 +26,12 @@ const Home: React.FC = () => {
       width: 300,
       height: 400,
       camera: CameraPreview.CAMERA_DIRECTION.BACK,
-
     }
 
     CameraPreview.startCamera(opcoes).then(sucesso => {
-      setStatus('Camera Aberta')
-    }).catch(erro => alert(erro))    
+      iniciar();
+    }).catch(erro => alert(erro))
+    setStatus('Iniciando');
   }
 
 
@@ -48,22 +49,42 @@ const Home: React.FC = () => {
   }
 
   const iniciar = () => {
-    contador(0)
-    setStatus('Gravando');
-    const opcoes = {
-      cameraDirection: CameraPreview.CAMERA_DIRECTION.BACK,
-      quality: 60,      
-    }
-    CameraPreview.startRecordVideo(opcoes).then(filePath => {
-      alert(filePath)
+
+    AndroidPermissions.checkPermission(AndroidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE).then(success => {
+      if (!success.hasPermission) {
+        AndroidPermissions.requestPermission(AndroidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE).then(request => {
+          alert(JSON.stringify(request))
+          if (request.hasPermission) {            
+            contador(0)
+            setStatus('Gravando');
+            const opcoes = {
+              cameraDirection: CameraPreview.CAMERA_DIRECTION.BACK,
+              quality: 60,
+            }
+            CameraPreview.startRecordVideo(opcoes).then(filePath => {
+              alert(filePath)
+            }).catch(error => {
+              alert(error)
+            })
+          }
+
+        }).catch(errorReq => {
+          alert(JSON.stringify(errorReq))
+        })
+      }
+      else {
+        alert(JSON.stringify(success))
+      }
+
     }).catch(error => {
-      alert(error)
+      alert(erro)
     })
+
   }
 
   const parar = () => {
     setStatus('finalizando')
-    
+
     CameraPreview.stopRecordVideo().then(filePath => {
       alert(filePath)
     }).catch(error => {
